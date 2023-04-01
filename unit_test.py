@@ -24,6 +24,7 @@ from fedlab.contrib.dataset.pathological_mnist import PathologicalMNIST
 from fedlab.contrib.dataset.partitioned_mnist import PartitionedMNIST
 
 from fedlab.utils.functional import evaluate, setup_seed
+from fedlab.contrib.algorithm.fedavg import FedAvgServerHandler, FedAvgClientTrainer
 from fedlab.contrib.algorithm.fedprox import FedProxServerHandler, FedProxSerialClientTrainer
 from fedlab.contrib.algorithm.scaffold import ScaffoldSerialClientTrainer, ScaffoldServerHandler
 from fedlab.contrib.algorithm.fednova import FedNovaSerialClientTrainer, FedNovaServerHandler
@@ -31,7 +32,7 @@ from fedlab.contrib.algorithm.feddyn import FedDynSerialClientTrainer, FedDynSer
 
 args = Munch()
 args.total_client = 100
-args.com_round = 10000
+args.com_round = 5
 args.sample_ratio = 0.2
 args.batch_size = 600
 args.epochs = 5
@@ -53,14 +54,15 @@ test_data = torchvision.datasets.MNIST(root="./datasets/mnist/",
 
 test_loader = DataLoader(test_data, batch_size=1024)
 
-model = MLP(784, 10)
-# model = CNN_MNIST()
+# model = MLP(784, 10)
+model = CNN_MNIST()
 
 if args.alg == "fedavg":
     handler = SyncServerHandler(model=model,
                                 global_round=args.com_round,
                                 sample_ratio=args.sample_ratio)
-    trainer = SGDSerialClientTrainer(model, args.total_client, cuda=True)
+    trainer = SGDSerialClientTrainer(model, args.total_client, cuda=True,mean_shift=True)
+    print(trainer.mean_shift)
     trainer.setup_optim(args.epochs, args.batch_size, args.lr)
 
 if args.alg == "fedprox":
@@ -97,15 +99,13 @@ if args.alg == "feddyn":
 
 mnist = PathologicalMNIST(root='./datasets/mnist/', path="./datasets/mnist/pathmnist", num_clients=args.total_client, shards=200)
 # mnist = PartitionedMNIST(root='./datasets/mnist/',
-#                          path="./datasets/mnist/fedmnist_iid",
+#                          path="./datasets/mnist/fedmnist_niid",
 #                          num_clients=args.total_client,
-#                          partition="iid",
+#                          partition="niid",
 #                          dir_alpha=args.alpha,
 #                          preprocess=args.preprocess,
-#                          transform=transforms.Compose(
-#                              [transforms.ToPILImage(),
-#                               transforms.ToTensor()]))
-# mnist.preprocess()
+#                          transform=transforms.ToTensor())
+mnist.preprocess()
 trainer.setup_dataset(mnist)
 
 import time
@@ -133,7 +133,6 @@ while handler.if_stop is False:
     if acc >= 0.97:
         break
     round += 1
-torch.save(
-    accuracy, "./exp_logs/{}, accuracy_{}_B{}_S{}_R{}_Seed{}_T{}.pkl".format(
-        args.alg, "mnist", args.batch_size, args.sample_ratio, args.com_round,
-        args.seed, time.strftime("%Y-%m-%d-%H:%M:%S")))
+
+out_path = os.path.join("./exp_logs", "Log.txt")
+torch.save(accuracy,out_path)

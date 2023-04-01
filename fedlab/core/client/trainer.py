@@ -104,6 +104,8 @@ class SerialClientTrainer(SerialModelMaintainer):
                  model: torch.nn.Module,
                  num_clients: int,
                  cuda: bool,
+                 mean_shift: bool=False,
+                 client_shift=False,
                  device: str = None,
                  personal: bool = False) -> None:
         super().__init__(model, num_clients, cuda, device, personal)
@@ -111,6 +113,8 @@ class SerialClientTrainer(SerialModelMaintainer):
         self.num_clients = num_clients
         self.dataset = FedDataset()
         self.type = SERIAL_TRAINER  # represent serial trainer
+        self.mean_shift = mean_shift
+        self.client_shift = client_shift
 
     def setup_dataset(self):
         """Override this function to set up local dataset for clients"""

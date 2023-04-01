@@ -45,7 +45,8 @@ class SyncServerHandler(ServerHandler):
                  sample_ratio: float,
                  cuda: bool = False,
                  device:str=None,
-                 logger: Logger = None):
+                 logger: Logger = None,
+                 mean_shift = False):
         super(SyncServerHandler, self).__init__(model, cuda, device)
 
         self._LOGGER = Logger() if logger is None else logger
@@ -61,6 +62,8 @@ class SyncServerHandler(ServerHandler):
         # stop condition
         self.global_round = global_round
         self.round = 0
+
+        self.mean_shift = mean_shift
 
     @property
     def downlink_package(self) -> List[torch.Tensor]:

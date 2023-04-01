@@ -31,8 +31,9 @@ class SGDClientTrainer(ClientTrainer):
                  model:torch.nn.Module,
                  cuda:bool=False,
                  device:str=None,
-                 logger:Logger=None):
-        super(SGDClientTrainer, self).__init__(model, cuda, device)
+                 logger:Logger=None,
+                 mean_shift: bool =False):
+        super(SGDClientTrainer, self).__init__(model, cuda, device,mean_shift=mean_shift)
 
         self._LOGGER = Logger() if logger is None else logger
 
@@ -104,8 +105,8 @@ class SGDSerialClientTrainer(SerialClientTrainer):
         logger (Logger, optional): Object of :class:`Logger`.
         personal (bool, optional): If Ture is passed, SerialModelMaintainer will generate the copy of local parameters list and maintain them respectively. These paremeters are indexed by [0, num-1]. Defaults to False.
     """
-    def __init__(self, model, num_clients, cuda=False, device=None, logger=None, personal=False) -> None:
-        super().__init__(model, num_clients, cuda, device, personal)
+    def __init__(self, model, num_clients, cuda=False, device=None, logger=None, personal=False,mean_shift=False,client_shift=False) -> None:
+        super().__init__(model, num_clients, cuda,mean_shift,client_shift, device, personal)
         self._LOGGER = Logger() if logger is None else logger
         self.cache = []
 

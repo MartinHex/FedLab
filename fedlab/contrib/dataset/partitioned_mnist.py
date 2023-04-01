@@ -90,6 +90,7 @@ class PartitionedMNIST(FedDataset):
             os.mkdir(os.path.join(self.path, "test"))
 
         trainset = torchvision.datasets.MNIST(root=self.root,
+                                                transform=transforms.ToTensor(),
                                                 train=True,
                                                 download=download)
 

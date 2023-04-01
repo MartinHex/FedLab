@@ -28,7 +28,7 @@ class FedAvgClientTrainer(SGDClientTrainer):
         parameters_list = [ele[0] for ele in buffer]
         weights = [ele[1] for ele in buffer]
         serialized_parameters = Aggregators.fedavg_aggregate(
-            parameters_list, weights)
+            parameters_list, weights,mean_shift=self.mean_shift)
         SerializationTool.deserialize_model(self._model, serialized_parameters)
 
 
